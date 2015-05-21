@@ -26,6 +26,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -33,9 +35,40 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+    configurations {
+        // Resolved 'com.android.support:support-annotations' versions for app (22.1.1) and test app (22.0.0) differ.
+        // Add this statement if 'com.android.support:support-annotations:x.x.x' dependencies was already defined in compile scheme.
+        androidTestCompile.exclude group: 'com.android.support', module: 'support-annotations'
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    // 'appcompat-v7' has 'support-annotations'.
     compile 'com.android.support:appcompat-v7:22.1.1'
+
+    compile 'com.android.support:recyclerview-v7:21.0.3'
+
+    // You can compile without 'espresso-core'. Because 'espresso-contrib' has.
+    // androidTestCompile 'com.android.support.test.espresso:espresso-core:2.1'
+
+    // When you use "espresso-contrib:2.0" with "rules:0.2".
+    // might "com.android.dex.DexException: Multiple dex files define Landroid/support/test/BuildConfig;" occur.
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.1') {
+        // Resolved java.lang.NoClassDefFoundError: your.package.name.EspressoTargetActivity
+        // 'espresso-contrib' has already 'support-v4' package.
+        exclude group: 'com.android.support', module: 'support-v4'
+
+        // Resolved java.lang.IllegalAccessError: Class ref in pre-verified class resolved to unexpected implementation
+        // 'espresso-contrib' has already 'recyclerview-v7' package.
+        exclude group: 'com.android.support', module: 'recyclerview-v7'
+    }
+
+    // You can compile without 'runner'. Because 'rules' has.
+    // androidTestCompile 'com.android.support.test:runner:0.2'
+    androidTestCompile 'com.android.support.test:rules:0.2'
 }
